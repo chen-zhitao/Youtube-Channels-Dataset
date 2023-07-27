@@ -42,7 +42,7 @@ def main(channelId_list):
 
     # call channels().list() for 50 channels at a time
     # snippets contain channel title and description
-    j=9431
+    j=29011
     group_size = 50
     for i in range(0, len(channelId_list), group_size):
         id_group=channelId_list[i:i+group_size]
@@ -119,6 +119,6 @@ def main(channelId_list):
 if __name__ == "__main__":
     startTime = datetime.now()
     print(startTime)
-    main(channelId_list[9431:20000])
+    main(channelId_list[29011:])
     print(datetime.now()-startTime)
     
