@@ -4,3 +4,5 @@ __pycache__/
 .env
 src/utils/config.py
 TODO.txt
+data/channels.db
+notebooks/.ipynb_checkpoints
