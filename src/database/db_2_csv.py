@@ -22,6 +22,6 @@ def load_csv():
     return
 
 
-# if __name__ == '__main__':
-#     main()
-#     load_csv()
+if __name__ == '__main__':
+    main()
+    load_csv()

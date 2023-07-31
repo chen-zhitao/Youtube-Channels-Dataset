@@ -142,6 +142,6 @@ def main(channelId_list):
 if __name__ == "__main__":
     startTime = datetime.now()
     print(startTime)
-    main(channelId_list[20000:30000])
+    main(channelId_list[30000:])
     print(datetime.now()-startTime)
     
