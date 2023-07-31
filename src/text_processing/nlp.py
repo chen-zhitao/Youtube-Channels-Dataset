@@ -28,19 +28,25 @@ def process_text(text, nlp):
     
     filtered_sentences = []
     for sentence in doc.sents:
-        # remove non-English sentences or sentences containing urls, emails, or social handles
-        if sentence._.language["language"] != "en":
+
+        # skip non-English sentences or sentences containing urls, emails, or social handles
+        if len(list(sentence))<2 or (len(list(sentence))>2 and sentence._.language["language"] != "en"):
+             continue
+
+        if any(token.like_url or token.like_email or token.text.startswith('@') or token.text.startswith('#') for token in sentence):
             continue
-        if not any(token.like_url or token.like_email or token.text.startswith('@') for token in sentence):
-            filtered_sentences.append(sentence.text)
+
+        filtered_sentences.append(sentence.text.strip())
             
     text=' '.join(filtered_sentences)
 
     # remove special characters from text
     #text=re.sub(r'[^a-zA-Z\s,.!?\'\"]', ' ', text)
-    text=re.sub(r'[^a-zA-Z\s,.!?\']', ' ', text)
+    text=re.sub(r'[^a-zA-Z\s,.!?\'0-9\-]', ' ', text)
 
     # remove extra empty space between sentences
     text=" ".join(text.split())
 
     return text
+
+

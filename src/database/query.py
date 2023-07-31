@@ -10,16 +10,23 @@ conn = sqlite3.connect(db_file)
 cursor = conn.cursor()
 
 # cursor.execute("""
-#                SELECT id FROM channels
+#                SELECT * FROM channels
 #                LIMIT 10
 #                """)
-               
-# rows = cursor.fetchall()
-# for row in rows:
-#    print(row)
-#    print()
-#    print('-'*10)
-#    print()
+
+cursor.execute("""
+                SELECT count(*) FROM channels
+                """)
+
+
+rows = cursor.fetchall()
+for row in rows:
+   print(row)
+   print()
+   print('-'*10)
+   print()
+
+
 
 
 

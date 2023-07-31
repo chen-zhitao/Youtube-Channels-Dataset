@@ -36,13 +36,16 @@ with open(file_path, 'rb') as f:
 # load nlp
 text_processor = nlp.get_nlp()
 
+# valid sentence ending
+valid_endings = {'.', '!', '?'}
+
 
 
 def main(channelId_list):
 
     # call channels().list() for 50 channels at a time
     # snippets contain channel title and description
-    j=29011
+    j=0
     group_size = 50
     for i in range(0, len(channelId_list), group_size):
         id_group=channelId_list[i:i+group_size]
@@ -64,7 +67,7 @@ def main(channelId_list):
             playlist_id = "UU"+channelId[2:]
 
             # call playlistItems().list() for this playlist to return recent videos
-            playlist_request = youtube.playlistItems().list(part="snippet", maxResults=25, playlistId = playlist_id)
+            playlist_request = youtube.playlistItems().list(part="snippet", maxResults=15, playlistId = playlist_id)
             try:
                 playlist_response = playlist_request.execute()
             except:
@@ -74,12 +77,9 @@ def main(channelId_list):
             if len(playlist_response['items'])<10:
                 continue
             
-            # otherwise, collect the following items:
+            # if succeed, collect the following items:
 
-            # 1. channel description
-            text_feature.append(channel['snippet']['description'] if channel['snippet']['description'] else "")
-
-            # 2. channel topics
+            # 1. channel topics
             if 'topicDetails' in channel and 'topicIds' in channel['topicDetails']:
                 topic_id_list = channel['topicDetails']['topicIds']
                 for topic_id in topic_id_list:
@@ -87,31 +87,54 @@ def main(channelId_list):
                         continue
                     text_feature.append(topicId_2_topic[topic_id]+'.')
 
-            # 3. title and description of the most recent videos of channel
+            
+            # 2. channel description
+            channel_des=channel['snippet']['description']
+            if channel_des:
+                text_feature.append(channel_des if channel_des[-1] in valid_endings else channel_des+'.')
+
+            # 3. titles and descriptions of the most recent videos of channel
             for i in range(min(15, len(playlist_response['items']))):
                 vid=playlist_response['items'][i]
-                text_feature.append(vid['snippet']['title']+'.')
-                text_feature.append(vid['snippet']['description'])
-            
+
+                title=vid['snippet']['title']
+                if title[-1] in valid_endings:
+                    text_feature.append(title)
+                else:
+                    text_feature.append(title+'.')
+
+                des=vid['snippet']['description']
+                if not des:
+                    continue
+                if des[-1] in valid_endings:
+                    text_feature.append(des)
+                else:
+                    text_feature.append(des+'.')
+                         
 
             # convert text_feature to one string then process
             # if the language is not primarily English, discard
 
-            text="".join(text_feature)
+            text=" ".join(text_feature)
             try:
-                nlp.is_English(text)
+                is_Eng = nlp.is_English(text)
+                if is_Eng == False:
+                    continue
             except:
                 continue
-            
+
             processed_text = nlp.process_text(text, text_processor)
 
-            # add channelId, url, and text feature to database
-            if processed_text:
-                try:
-                    cursor.execute("""INSERT INTO channels VALUES (?, ?, ?);""", (channelId, channel_url, processed_text))
-                    conn.commit()
-                except:
-                    continue
+            if len(processed_text)< 250:
+                continue
+
+            #add channelId, url, and text feature to database
+            
+            try:
+                cursor.execute("""INSERT INTO channels VALUES (?, ?, ?);""", (channelId, channel_url, processed_text))
+                conn.commit()
+            except:
+                continue
     print('complete')
     return 
 
@@ -119,6 +142,6 @@ def main(channelId_list):
 if __name__ == "__main__":
     startTime = datetime.now()
     print(startTime)
-    main(channelId_list[29011:])
+    main(channelId_list[20000:30000])
     print(datetime.now()-startTime)
     
