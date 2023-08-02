@@ -10,6 +10,8 @@ Each entry in the dataset includes:
 * url: url to the channel's homepage on Youtube
 * description: a text describing the channels's content (see Collection Methodology for details)
 
+You can test querying data from the dataset on <https://youtube-channels-dataset.onrender.com>.
+
 
 
 ## Collection Methodology
